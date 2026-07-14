@@ -169,7 +169,7 @@ void RPG() {
 	cout << "Урон всадника" << character[1].dmg << "\n";
 	cout << "Урон лучника" << character[2].dmg << "\n";
 
-
+	//Cделай дело гуляй смело
 }
 
 int main()  {
