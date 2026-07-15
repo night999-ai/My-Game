@@ -1,0 +1,131 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// Unit structure
+struct Unit {
+    string name;
+    int HP;
+    int dmg;
+};
+
+void RPG() {
+    
+    const int UNIT_COUNT = 4;
+    Unit units[UNIT_COUNT];
+
+    units[0].name = "Swordsman";
+    units[0].HP = 100;
+    units[0].dmg = 10;
+
+    units[1].name = "Horseman";
+    units[1].HP = 100;
+    units[1].dmg = 10;
+
+    units[2].name = "Archer";
+    units[2].HP = 100;
+    units[2].dmg = 10;
+
+    units[3].name = "Spearman";
+    units[3].HP = 100;
+    units[3].dmg = 10;
+
+    // Balance table (4x4 matrix)
+    // 1 = first unit is stronger against second unit
+    int balance[UNIT_COUNT][UNIT_COUNT] = {
+        //           Swordsman  Horseman  Archer  Spearman
+        /*Swordsman*/ {0,        0,        1,      1},    // Swordsman > Archer and Spearman
+        /*Horseman*/  {1,        0,        0,      0},    // Horseman > Swordsman
+        /*Archer*/    {0,        1,        0,      1},    // Archer > Horseman and Spearman
+        /*Spearman*/  {0,        1,        0,      0}     // Spearman > Horseman
+    };
+
+    // Unit names array
+    string unitNames[UNIT_COUNT];
+    for (int i = 0; i < UNIT_COUNT; i++) {
+        unitNames[i] = units[i].name;
+    }
+
+    // Show rules
+    cout << "=== GAME RULES ===" << endl;
+    cout << "4 units: Swordsman, Horseman, Archer, Spearman" << endl;
+    cout << endl;
+
+    // Show balance from table
+    cout << "Balance:" << endl;
+    for (int i = 0; i < UNIT_COUNT; i++) {
+        cout << units[i].name << " is strong against: ";
+        bool hasAdvantage = false;
+        for (int j = 0; j < UNIT_COUNT; j++) {
+            if (balance[i][j] == 1) {
+                cout << units[j].name << " ";
+                hasAdvantage = true;
+            }
+        }
+        if (!hasAdvantage) cout << "none";
+        cout << endl;
+    }
+    cout << endl;
+
+    // Show all units with stats
+    cout << "=== UNITS ===" << endl;
+    for (int i = 0; i < UNIT_COUNT; i++) {
+        cout << i + 1 << ". " << units[i].name << "\t";
+        cout << "HP: " << units[i].HP << "\t";
+        cout << "Damage: " << units[i].dmg << endl;
+    }
+    cout << endl;
+
+    // Player selects unit
+    cout << "Select your unit (enter number 1-4): ";
+    int playerChoice;
+    cin >> playerChoice;
+    playerChoice--; // convert to 0-based index
+
+    if (playerChoice < 0 || playerChoice >= UNIT_COUNT) {
+        cout << "Invalid choice!" << endl;
+        return;
+    }
+
+    // Bot selects random unit
+    int botChoice = rand() % UNIT_COUNT;
+    cout << "Bot selected: " << units[botChoice].name << "\n\n";
+    cout << endl;
+    cout << playerChoice<<endl;
+
+    // Check balance table to find winner
+    int playerIdx = playerChoice;
+    int botIdx = botChoice;
+
+    // Determine result using balance table
+    if (balance[playerIdx][botIdx] == 1) {
+        // Player is stronger
+        units[playerIdx].dmg *= 1.5;
+        cout << "YOU WIN!\n " << units[playerIdx].name << " is stronger against\n "
+            << units[botIdx].name << "!" << endl;
+        cout << "Damage boosted to: " << units[playerIdx].dmg << endl;
+    }
+    else if (balance[botIdx][playerIdx] == 1) {
+        // Bot is stronger
+        units[botIdx].dmg *= 1.5;
+        cout << "YOU LOSE!\n " << units[botIdx].name << " is stronger against "
+            << units[playerIdx].name << "!" << endl;
+        cout << "Bot damage boosted to: " << units[botIdx].dmg << endl;
+    }
+    else {
+        cout << "DRAW! Equal strength!" << endl;
+    }
+
+    // Show final stats
+    cout << endl << "=== FINAL STATS ===" << endl;
+    for (int i = 0; i < UNIT_COUNT; i++) {
+        cout << units[i].name << " - Damage: " << units[i].dmg << endl;
+    }
+}
+
+int main() {
+    srand(time(0));
+    RPG();
+    
+}
