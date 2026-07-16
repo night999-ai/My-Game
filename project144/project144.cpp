@@ -175,6 +175,36 @@ void RPG() {
 
 int main() {
     srand(time(0));
-    RPG();
+    //RPG();
 
+}
+
+void Economy() {
+    struct Player {
+        int inventory = 15;
+        int money = 400;
+    };
+
+    struct loot {
+
+        int cost;
+        int weight;
+        string name;
+    };
+
+    loot Shop[3];
+
+    Shop[0].name = "Potion";
+    Shop[0].cost = 50;
+    Shop[0].weight = 1;
+
+    Shop[1].name = "Sword";
+    Shop[1].cost = 300;
+    Shop[1].weight = 10;
+
+    Shop[2].name = "Shield";
+    Shop[2].cost = 250;
+    Shop[2].weight = 8;
+
+    // Сделать логику покупки с выводом всех параметров
 }
