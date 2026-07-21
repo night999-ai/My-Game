@@ -1,0 +1,181 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstring>   // для strcmp
+#include <cstdlib>   // для atoi
+
+using namespace std;
+
+int main(int argc, char* argv[]) {
+    // ---------- все переменные прямо здесь ----------
+    int totalPoints = 10;
+    const int MAX_LEVEL = 15;
+
+    // наша структура навыка (проще некуда)
+    struct Skill {
+        string name;
+        string desc;
+        int cost;          // цена за уровень
+        int level;         // 0 = не открыт
+        vector<Skill*> kids;
+        vector<Skill*> need;   // пререквизиты
+    };
+
+    vector<Skill*> skills; // храним вообще все навыки
+    vector<string> names;  // отдельно имена (зачем-то)
+
+    // корень
+    Skill* root = new Skill{"Root", "Корень", 0, 1, {}, {}}; // сразу level=1
+    skills.push_back(root);
+    names.push_back("Root");
+
+    // если передали команды через командную строку
+    if (argc > 1) {
+        if (strcmp(argv[1], "add") == 0) {
+            if (argc != 6) {
+                cout << "Использование: add <родитель> <имя> <описание> <цена>" << endl;
+                return 1;
+            }
+            string p = argv[2], n = argv[3], d = argv[4];
+            int c = atoi(argv[5]);
+
+            // ищем родителя
+            Skill* parent = nullptr;
+            for (int i = 0; i < skills.size(); i++) {
+                if (skills[i]->name == p) { parent = skills[i]; break; }
+            }
+            if (!parent) { cout << "Родитель не найден\n"; return 1; }
+
+            Skill* s = new Skill{n, d, c, 0, {}, {}};
+            parent->kids.push_back(s);
+            skills.push_back(s);
+            names.push_back(n);
+            cout << "Навык " << n << " добавлен." << endl;
+            return 0;
+        }
+        else if (strcmp(argv[1], "upgrade") == 0) {
+            if (argc != 3) { cout << "Использование: upgrade <имя>\n"; return 1; }
+            string name = argv[2];
+            Skill* s = nullptr;
+            for (int i = 0; i < skills.size(); i++) {
+                if (skills[i]->name == name) { s = skills[i]; break; }
+            }
+            if (!s) { cout << "Навык не найден\n"; return 1; }
+            if (s->level >= MAX_LEVEL) { cout << "Макс. уровень\n"; return 1; }
+            if (totalPoints < s->cost) { cout << "Не хватает очков\n"; return 1; }
+            if (s->level == 0) {
+                for (int i = 0; i < s->need.size(); i++) {
+                    if (s->need[i]->level == 0) { cout << "Нет пререквизитов\n"; return 1; }
+                }
+            }
+            s->level++;
+            totalPoints -= s->cost;
+            cout << name << " повышен до уровня " << s->level << endl;
+            return 0;
+        }
+        else if (strcmp(argv[1], "print") == 0) {
+            // печать дерева (рекурсия без функций — а вот так, цикл с ручным стеком? 
+            // Джун скорее скопипастит рекурсивную печать, которую он когда-то видел.
+            // Но у нас нет функций. Сделаем вид, что мы не можем рекурсию, 
+            // поэтому просто пройдём по всем навыкам и покажем их уровень и имя,
+            // без отступов. Это же «проще».
+            cout << "\nДерево навыков:\n";
+            for (int i = 0; i < skills.size(); i++) {
+                if (skills[i]->level > 0)
+                    cout << "[" << skills[i]->level << "] ";
+                else
+                    cout << "[ ] ";
+                cout << skills[i]->name << " (cost " << skills[i]->cost << ")" << endl;
+            }
+            cout << "Очков осталось: " << totalPoints << " / 10" << endl;
+            return 0;
+        }
+        else if (strcmp(argv[1], "help") == 0) {
+            cout << "Команды: add, upgrade, print, help\n";
+            cout << "Максимум очков: 10, макс. уровень: 15.\n";
+            return 0;
+        }
+        else {
+            cout << "Неизвестная команда. help для справки.\n";
+            return 1;
+        }
+    }
+
+    // ---------- интерактивное меню ----------
+    int choice;
+    while (true) {
+        cout << "\n=== МЕНЮ ===\n"
+             << "1. Добавить навык\n"
+             << "2. Повысить уровень\n"
+             << "3. Показать дерево\n"
+             << "4. Выход\n"
+             << "> ";
+        cin >> choice;
+
+        if (choice == 1) {
+            string p, n, d;
+            int c;
+            cout << "Родитель: "; cin >> p;
+            cout << "Имя: "; cin >> n;
+            cout << "Описание: "; cin >> d;
+            cout << "Цена за уровень: "; cin >> c;
+
+            Skill* parent = nullptr;
+            for (int i = 0; i < skills.size(); i++) {
+                if (skills[i]->name == p) { parent = skills[i]; break; }
+            }
+            if (!parent) { cout << "Родитель не найден\n"; continue; }
+
+            Skill* s = new Skill{n, d, c, 0, {}, {}};
+            parent->kids.push_back(s);
+            skills.push_back(s);
+            names.push_back(n);
+            cout << "Навык " << n << " добавлен.\n";
+        }
+        else if (choice == 2) {
+            string name;
+            cout << "Имя навыка: "; cin >> name;
+
+            Skill* s = nullptr;
+            for (int i = 0; i < skills.size(); i++) {
+                if (skills[i]->name == name) { s = skills[i]; break; }
+            }
+            if (!s) { cout << "Не найден\n"; continue; }
+            if (s->level >= MAX_LEVEL) { cout << "Макс. уровень\n"; continue; }
+            if (totalPoints < s->cost) { cout << "Не хватает очков\n"; continue; }
+            if (s->level == 0) {
+                bool ok = true;
+                for (int i = 0; i < s->need.size(); i++) {
+                    if (s->need[i]->level == 0) { ok = false; break; }
+                }
+                if (!ok) { cout << "Нет пререквизитов\n"; continue; }
+            }
+            s->level++;
+            totalPoints -= s->cost;
+            cout << name << " повышен до уровня " << s->level << endl;
+        }
+        else if (choice == 3) {
+            // снова та же печать (скопипастили)
+            cout << "\nДерево навыков:\n";
+            for (int i = 0; i < skills.size(); i++) {
+                if (skills[i]->level > 0)
+                    cout << "[" << skills[i]->level << "] ";
+                else
+                    cout << "[ ] ";
+                cout << skills[i]->name << " (cost " << skills[i]->cost << ")" << endl;
+            }
+            cout << "Очков осталось: " << totalPoints << " / 10" << endl;
+        }
+        else if (choice == 4) {
+            cout << "Пока!" << endl;
+            goto quit;   // джунское спасение
+        }
+        else {
+            cout << "Неверный ввод.\n";
+        }
+    }
+
+quit:
+    // утечка памяти – классика
+    return 0;
+}
