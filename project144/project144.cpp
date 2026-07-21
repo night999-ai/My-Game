@@ -1,5 +1,9 @@
 #include <iostream>
 #include <string>
+#include <windows.h>
+#include <vector>
+#include <cstring>
+#include <cstdlib>
 
 using namespace std;
 
@@ -173,38 +177,123 @@ void RPG() {
     }
 }
 
-int main() {
-    srand(time(0));
-    //RPG();
+void Economy() {
+  
+   int gold = 400;
+   int maxWeight = 15;
+  
+  
+   int potionCost = 50;
+   int potionWeight = 1;
+  
+   int swordCost = 300;
+   int swordWeight = 10;
+  
+   int shieldCost = 250;
+   int shieldWeight = 8;
+  
+  
+   int needPotions = 2;
+   int needSwords = 1;
+   int needShields = 0;
+  
+   int totalCost = needPotions * potionCost + needSwords * swordCost;
+   int totalWeight = needPotions * potionWeight + needSwords * swordWeight;
+  
+   cout << "=== Проверка покупки: 2 зелья и меч ===" << endl;
+   cout << "Нужно денег: " << totalCost << " (есть " << gold << ")" << endl;
+   cout << "Нужно веса: " << totalWeight << " (макс " << maxWeight << ")" << endl;
+  
+   if (totalCost <= gold && totalWeight <= maxWeight) {
+       cout << "Да, хватит и денег, и места!" << endl;
+   }
+   else {
+       cout << "Нет, не хватит:" << endl;
+       if (totalCost > gold) cout << "- Не хватает золота!" << endl;
+       if (totalWeight > maxWeight) cout << "- Слишком тяжело!" << endl;
+   }
+  
+   cout << endl;
+  
+   // ===== Задание 2: оптимизация – потратить максимум денег в пределах веса =====
+   int maxPotionsByWeight = maxWeight / potionWeight; // 15/1 = 15
+   int maxPotionsByGold = gold / potionCost;          // 400/50 = 8
+   int maxPotions = maxPotionsByWeight < maxPotionsByGold ? maxPotionsByWeight : maxPotionsByGold; // 8
+  
+   int maxSwordsByWeight = maxWeight / swordWeight;  // 15/10 = 1
+   int maxSwordsByGold = gold / swordCost;           // 400/300 = 1
+   int maxSwords = maxSwordsByWeight < maxSwordsByGold ? maxSwordsByWeight : maxSwordsByGold; // 1
+  
+   int maxShieldsByWeight = maxWeight / shieldWeight; // 15/8 = 1
+   int maxShieldsByGold = gold / shieldCost;          // 400/250 = 1
+   int maxShields = maxShieldsByWeight < maxShieldsByGold ? maxShieldsByWeight : maxShieldsByGold; // 1
+  
+   int bestCost = 0;
+   int bestPotions = 0;
+   int bestSwords = 0;
+   int bestShields = 0;
+  
+   for (int p = 0; p <= maxPotions; p++) {
+       for (int s = 0; s <= maxSwords; s++) {
+           for (int sh = 0; sh <= maxShields; sh++) {
+               int cost = p * potionCost + s * swordCost + sh * shieldCost;
+               int weight = p * potionWeight + s * swordWeight + sh * shieldWeight;
+  
+  
+               if (weight <= maxWeight && cost <= gold && cost > bestCost) {
+                   bestCost = cost;
+                   bestPotions = p;
+                   bestSwords = s;
+                   bestShields = sh;
+               }
+           }
+       }
+   }
+  
+   cout << "=== Оптимальная покупка (максимум потраченных денег) ===" << endl;
+   cout << "Куплено:" << endl;
+   cout << "Зелий здоровья: " << bestPotions << " шт. (вес " << bestPotions * potionWeight
+       << ", цена " << bestPotions * potionCost << ")" << endl;
+   cout << "Мечей: " << bestSwords << " шт. (вес " << bestSwords * swordWeight
+       << ", цена " << bestSwords * swordCost << ")" << endl;
+   cout << "Щитов: " << bestShields << " шт. (вес " << bestShields * shieldWeight
+       << ", цена " << bestShields * shieldCost << ")" << endl;
+   cout << "Общий вес: " << (bestPotions * potionWeight + bestSwords * swordWeight + bestShields * shieldWeight)
+       << " (лимит " << maxWeight << ")" << endl;
+   cout << "Потрачено золота: " << bestCost << " (было " << gold << ")" << endl;
+   cout << "Осталось золота: " << gold - bestCost << endl;
+  
+
+  
+}
+void Tree() {
+
+    struct Skill {
+        string name;
+        string desc;
+        int branch;// 1 -  2 - 3 -
+        int cost;
+        int level;
+    };
+    vector<Skill> AllSkills;
+    AllSkills.push_back({"Огненый_Шар","Создаёт испепеляющий шар огня",3,1,1});// Магия
+    AllSkills.push_back({ "Пламенная_стрела","Выпускает стрелу пламени уничтожающую всё на своём пути",3,2 });
+    AllSkills.push_back({ "Шторм_пламени","призывает шторм пламени сжигающий всё и вся",5,3 });
+
+    AllSkills.push_back({ "Магия_Воды","позволяет призывать воду и контроллировать её",1,1 });
+    AllSkills.push_back({ "Продвинутаямагия_Воды","Углубляет понимание в магии позволяя создавать больше воды и проще её контролировать",2,2 });
+    AllSkills.push_back({ "Струя_воды","Создаёт струю воды под высоким давлением способную разрезать даже сталь",3,3 });
+    AllSkills.push_back({ "Копья_Льда","Создаёт и запускает множество копий изо льда",3,3 });
+    AllSkills.push_back({ "Посейдон!","призывает аватар бога морей!Что сметает всех врагов творих",5,4 });
+    AllSkills.push_back({ "глыба_льда","Создаёт гигантскую глыбу льда,что летит на врагов",5,4 });
+
+
+  
 
 }
-
-void Economy() {
-    struct Player {
-        int inventory = 15;
-        int money = 400;
-    };
-
-    struct loot {
-
-        int cost;
-        int weight;
-        string name;
-    };
-
-    loot Shop[3];
-
-    Shop[0].name = "Potion";
-    Shop[0].cost = 50;
-    Shop[0].weight = 1;
-
-    Shop[1].name = "Sword";
-    Shop[1].cost = 300;
-    Shop[1].weight = 10;
-
-    Shop[2].name = "Shield";
-    Shop[2].cost = 250;
-    Shop[2].weight = 8;
-
-    // Сделать логику покупки с выводом всех параметров
+int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    srand(time(0));
+    //RPG();
+    //Economy();
 }
