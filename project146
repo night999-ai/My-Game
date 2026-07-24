@@ -1,0 +1,51 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+struct Skill {
+    string name;
+    string desc;
+    int branch;
+    int cost;
+    int level;  
+};
+
+int main() {
+    vector<Skill> skills;
+
+    
+    skills.push_back({"Огненый_Шар", "Создаёт испепеляющий шар огня", 1, 1, 1});
+    skills.push_back({"Пламенная_стрела", "Выпускает стрелу пламени", 1, 2, 2});
+    skills.push_back({"Шторм_пламени", "Призывает шторм пламени", 1, 5, 3});
+
+    
+    skills.push_back({"Магия_Воды", "Позволяет призывать воду", 2, 1, 1});
+    skills.push_back({"Продвинутаямагия_Воды", "Углубляет понимание магии воды", 2, 2, 2});
+    skills.push_back({"Струя_воды", "Создаёт струю воды под давлением", 2, 3, 3});
+    skills.push_back({"Копья_Льда", "Создаёт множество копий изо льда", 2, 3, 3});
+    skills.push_back({"Посейдон!", "Призывает аватара бога морей", 2, 4, 4});
+    skills.push_back({"глыба_льда", "Создаёт гигантскую глыбу льда", 2, 4, 4});
+
+    cout << "=== Дерево навыков ===\n";
+
+    
+    cout << "\nВетка 1 (Огонь):\n";
+    for (int i = 0; i < skills.size(); i++) {
+        if (skills[i].branch == 1) {
+            cout << "  Уровень " << skills[i].level << ": " << skills[i].name
+                 << " (стоимость: " << skills[i].cost << ")\n";
+        }
+    }
+
+  
+    cout << "\nВетка 2 (Вода / Лёд):\n";
+    for (int i = 0; i < skills.size(); i++) {
+        if (skills[i].branch == 2) {
+            cout << "  Уровень " << skills[i].level << ": " << skills[i].name
+                 << " (стоимость: " << skills[i].cost << ")\n";
+        }
+    }
+
+    return 0;
+}
